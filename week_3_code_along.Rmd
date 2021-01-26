@@ -1,0 +1,146 @@
+---
+title: "week_3_code_along"
+author: "Danielle Sclafani"
+date: "1/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(broom)
+library(jtools)
+
+```
+
+
+```{r}
+penguins %>% 
+  select(species, bill_length_mm:sex) %>% 
+  ggpairs(aes(color=species))
+```
+
+
+# selecting for adelie and chinstraps because they are most similar in size for purposes of this lab. Type in levels(adelie_chinstraps$species) in console to see the different types of factors that are coming up, make sure you pay attention to the order they come up in. Adelie comes up first so that is 0 and chinstrap is 1
+
+```{r}
+adelie_chinstrap <- penguins %>% 
+  filter(species %in% c("Adelie", "Chinstrap")) %>% # this did not get rid of the gentoo factor
+  mutate(species = fct_drop(species)) #drops factor where there are no observations for that factor, in this case gentoo penguins
+```
+
+Made a dataviz if the two species:
+
+```{r}
+ggplot(data = adelie_chinstrap, aes(x=body_mass_g, y= flipper_length_mm)) +
+  geom_point(aes(color = sex))+
+  facet_wrap(~species)
+```
+ Maybe chinstraps trend to be bigger, hard to tell with these graphs. Definitely differences between the size and the sex of the penguins
+ 
+ 
+### Binary logistic regression
+ How to use binomial logistic regression to see based on the inputs if a penguin is a chinstrap or adelie
+ going to include:
+- body mass
+- flipper length
+- penguin sex
+
+
+```{r}
+adelie_chinstrap_blr <- glm(species ~ body_mass_g + flipper_length_mm + sex, 
+                            data = adelie_chinstrap, 
+                            family = "binomial") # how we know we are doing to log odds on the left hand side
+
+```
+ 
+ 
+Take a look at the outcomes:
+```{r}
+adelie_chinstrap_blr
+
+summary(adelie_chinstrap_blr) # more info on the test
+
+```
+ 
+ 
+ understanding: 
+ due to the order fo the factors - we are seeing the probability of chinstrap penguiuns
+
+ body_mass coefficient is -8.5 x 10^4 - continuous variable. as the body mass of the penguin increases, the probability it is a chinstrap goes down by this much
+ 
+ increase in flipper length by coefficient, increases the probability it is a chinstrap
+ 
+ sexmale - if it is male, the probabilty goes down that it is a chinstrap - doesnt really make sense in this context but it can in other senses
+ 
+Checking out the one variable that is significant - flipper length:
+```{r}
+ggplot(data = adelie_chinstrap, aes(x=species, y=flipper_length_mm))+
+  geom_jitter(aes(color = sex))
+```
+
+ 
+ Looking at actual probabilities - above was the log odds of the the penguin being chinstrap. What are the actual probabilities for hte chinstrap for each of the exisiting observations in out dataset by using augment
+ 
+ 
+```{r}
+blr_fitted <- adelie_chinstrap_blr %>% 
+  broom::augment(type.predict = "response")
+```
+ 
+
+Plotting fitted probabilities
+```{r}
+ggplot(data = blr_fitted, aes( x = flipper_length_mm, y = .fitted))+
+  geom_point(aes(color=sex, pch = species))+
+  geom_smooth(aes(color = sex), se = FALSE) +
+  labs( x = "Flipper Length (mm)", y = "Probability of Chinstrap")
+```
+
+
+Plot model based on different variables:
+```{r}
+# shows you the actual probabilities based on the variable
+effect_plot(adelie_chinstrap_blr,
+            pred = flipper_length_mm, 
+            y.label = "Probability of Chinstrap",
+            interval = TRUE) #adds confidence interval
+```
+
+```{r}
+effect_plot(adelie_chinstrap_blr,
+            pred = body_mass_g, 
+            y.label = "Probability of Chinstrap",
+            interval = TRUE)
+```
+
+
+What is the probability that a female penguin weighing 3410 g, with a flipper length of 192mm is a Chinstrap? How do we put these into the model?
+```{r}
+ex_1 <- predict(adelie_chinstrap_blr,
+                data.frame(sex = "female",
+                           body_mass_g = 3410,
+                           flipper_length_mm = 192))
+ex_1 # gives you the logodds
+
+ex_2 <- predict(adelie_chinstrap_blr,
+                data.frame(sex = "female",
+                           body_mass_g = 3410,
+                           flipper_length_mm = 192),
+                type = "response") #gives you the probabilities
+ex_2 
+
+```
+
+
+
+
+
+
+
+
+
+
+
