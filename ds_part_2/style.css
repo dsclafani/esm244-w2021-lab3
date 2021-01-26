@@ -1,0 +1,26 @@
+/* Import Google Fonts (these symbols are how you comment similar to # in normal code)*/
+
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Yusei+Magic&display=swap');
+
+/* Update headers */
+
+h2 {
+  font-family: "Yusei";
+  font-size: 40px;
+  color: purple;
+}
+
+h3{
+  font-family: "Indie";
+  font-size: 25px;
+  color: magenta;
+}
+
+body{
+  font-family: "Yusei";
+  font-size: 18px;
+  color: blue;
+  background-color: yellow;
+}
+
+

@@ -1,0 +1,24 @@
+---
+title: "ds_lab_part_2"
+author: "Danielle Sclafani"
+date: "1/26/2021"
+output: 
+  html_document:
+    css: "style.css"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Customizing RMarkdown with CSS
+
+Open a new CSS File - named style
+update the output in the yaml (above). put cursor after output: , then hit enter, then hit space twice. put a colon : after html_document and enter. then add css: "name of css.css" download google fonts from font.google.com, select certain styles. then in sidebar hit the @import option then copy and paste the text below in between the two <style> s 
+
+
+### This is my level 3 header
+
+#### This is my level 4 header
+
+this is regular body text 
